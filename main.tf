@@ -20,6 +20,7 @@ resource "aws_subnet" "publicsubnet" {
   }
 }
 
+#create custom route table
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.customvpc.id
 
@@ -44,7 +45,7 @@ resource "aws_route_table_association" "public_rt_assoc" {
   ]
 }
 
-#create internet gateway and update my route table 
+#create internet gateway and update the route table 
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.customvpc.id
 
@@ -53,7 +54,7 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
-#create security group
+#create custom security group
 resource "aws_security_group" "allow_traffic" {
   name        = "allow_web_traffic"
   description = "Allow inbound traffic to communicate to internet"
@@ -94,12 +95,13 @@ resource "aws_security_group" "allow_traffic" {
     Name = "custom_SG"
   }
 }
-#create an instance
+
+#create an ec2 instance and install apache web server
 resource "aws_instance" "web-server" {
-  ami                         = "ami-0b5eea76982371e91"
+  ami                         = "ami-0715c1897453cabd1"
   instance_type               = "t2.micro"
   availability_zone           = "us-east-1a"
-  key_name                    = "server"
+  key_name                    = "mykeypairname"
   subnet_id                   = aws_subnet.publicsubnet.id
   associate_public_ip_address = true
   security_groups             = [aws_security_group.allow_traffic.id]
@@ -115,7 +117,6 @@ resource "aws_instance" "web-server" {
     Name = "web_server"
   }
 }
-
 
 output "name" {
   value       = aws_instance.web-server.associate_public_ip_address
